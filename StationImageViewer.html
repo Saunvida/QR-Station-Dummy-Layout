@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #ffffff; }
+        img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        #error-msg { color: grey; font-family: sans-serif; display: none; }
+    </style>
+    </head>
+<body>
+
+    <img id="dynamicImage" src="" alt="Select a station to view layout" />
+    <div id="error-msg">No image selected</div>
+
+    <script>
+        // 1. Listen for messages from SAS Visual Analytics
+        if (window.addEventListener) {
+            window.addEventListener("message", onMessage, false);
+        } else {
+            window.attachEvent("onmessage", onMessage);
+        }
+
+        function onMessage(event) {
+            // 2. Validate the data comes from SAS
+            if (event && event.data) {
+                var data = event.data;
+
+                // 3. Check if we have valid data rows
+                if (data.data && data.data.length > 0) {
+                    // SAS sends data as an array. We take the first column of the first row.
+                    // This assumes your data role in SAS is just the "Image URL"
+                    var imageUrl = data.data[0][0]; 
+                    
+                    var img = document.getElementById("dynamicImage");
+                    var err = document.getElementById("error-msg");
+
+                    if (imageUrl) {
+                        img.src = imageUrl;
+                        img.style.display = "block";
+                        err.style.display = "none";
+                    } else {
+                        showError();
+                    }
+                } else {
+                    showError();
+                }
+            }
+        }
+
+        function showError() {
+            document.getElementById("dynamicImage").style.display = "none";
+            document.getElementById("error-msg").style.display = "block";
+        }
+    </script>
+</body>
+</html>
